@@ -4,7 +4,7 @@ const User = require('../models/userModel')
 
 const getGoals = asyncHandler(async (req, res) => {
     const goals = await Goal.find({user: req.user.id})
-    res.status(200).json(goals)
+    res.status(200).json({goals})
 })
 const postGoals = asyncHandler(async (req, res) => {
     if(!req.body.text){
@@ -23,15 +23,15 @@ const putGoals = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error('Goal not found')
     }
-    const user = await User.findById(req.user.id)
-    if(!user){
+    if(!req.user){
         res.status(401)
         throw new Error('User not found')
     }
-    if(goal.user.toString() !== user.id){
+    if(goal.user.toString() !== req.user.id){
         res.status(401)
         throw new Error("user not authorized")
     }
+
     const updatedgoals = await Goal.findByIdAndUpdate(req.params.id,req.body,{new: true})
     res.status(200).json({message: updatedgoals})
 })
@@ -41,12 +41,11 @@ const deleteGoals = asyncHandler(async(req, res) => {
         res.status(400)
         throw new Error('Goal not found')
     }
-    const user = await User.findById(req.user.id)
-    if(!user){
+    if(!req.user){
         res.status(401)
         throw new Error('User not found')
     }
-    if(goal.user.toString() !== user.id){
+    if(goal.user.toString() !== req.user.id){
         res.status(401)
         throw new Error("user not authorized")
     }
